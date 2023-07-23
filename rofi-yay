@@ -1,0 +1,24 @@
+#!/bin/bash
+echo -en "\0prompt\x1fEnter your AUR Package\n"
+
+function get_packages() {
+    echo -e "$(yay -Ss | sed -e n\;d| cut -d " " -f 1 | cut -d "/" -f 2)"
+}
+
+function install_package() {
+    echo -en "Wait please\n"
+    yes | yay -S $(echo ${LINE_UNESCAPED} | cut -d " " -f 1 | cut -d "/" -f 2)
+}
+
+if [ -z "$@" ]; then
+    get_packages
+else
+    LINE=$(echo "${@}" | sed "s/\([^a-zA-Z0-9]\)/\\\\\\1/g")
+    LINE_UNESCAPED=${@}
+    if [[ $LINE_UNESCAPED == +* ]]; then
+        LINE_UNESCAPED=$(echo $LINE_UNESCAPED | sed s/^+//g |sed s/^\s+//g )
+    else
+        install_package
+        echo -en "Your package install!\n"
+    fi
+fi
